@@ -91,12 +91,9 @@ type PSVSupervisor = {
   CURTIME: string;
 };
 
-
-
-
-type PSVDevices = PSVInverter | PSVPowerMeter | PSVSupervisor
+type PSVDevices = PSVInverter | PSVPowerMeter | PSVSupervisor;
 interface APIResponse {
   devices: PSVDevices[];
 }
 
-export { APIResponse, PSVPowerMeter, PSVInverter, PSVDevices }
+export { APIResponse, PSVDevices, PSVInverter, PSVPowerMeter };

@@ -1,10 +1,10 @@
 import { load } from "https://deno.land/std@0.188.0/dotenv/mod.ts";
-import { parse   } from "https://deno.land/std@0.188.0/datetime/mod.ts";
+import { parse } from "https://deno.land/std@0.188.0/datetime/mod.ts";
 // tomorrow - look at deno tasks to pass in the .env file
-// i'll have to do something witht the dates
 // maybe spit some of this into other files
+// need to do the checks
 
-import {
+import type {
   APIResponse,
   PSVDevices,
   PSVInverter,
@@ -21,7 +21,7 @@ class BaseDatadog {
   id: string;
   status: number;
   tags: string[];
-  // time: number;
+  time: number;
 
   constructor(device: PSVDevices) {
     this.type = device.DEVICE_TYPE;
@@ -30,13 +30,16 @@ class BaseDatadog {
     // # 0 - Ok, 1 - Warning, 2 - Critical, 3 - Unkown
     this.status = device.STATE === "working" ? 0 : 2;
     this.tags = [`${device.DEVICE_TYPE}:${device.SERIAL}`];
-    // this.time = this.formatDate(device.DATATIME)
+    this.time = this.formatDate(device.CURTIME);
   }
 
   private formatDate(time: string) {
-    const format =  "yyyy,MM,dd,HH,mm,ss"
-    let date = parse(time, format)
-    return date.getTime()
+    const format = "yyyy,MM,dd,HH,mm,ss";
+    const TIME_IN_MILISECOND = 60000;
+    const date = parse(time, format);
+    const offSet = new Date().getTimezoneOffset() * TIME_IN_MILISECOND;
+    const diff = (date.getTime() - offSet) / 1000;
+    return diff;
   }
 }
 
@@ -90,7 +93,7 @@ function formatDevices(devices: PSVDevices[]) {
   return something;
 }
 
-async function sendToDataDog(stats) {
+async function sendToDataDog(stats: Inverter) {
   const headers = new Headers({
     "DD-API-KEY": apiKey,
     "Content-Type": "application/json",
@@ -98,41 +101,51 @@ async function sendToDataDog(stats) {
 
   const body = JSON.stringify({
     series: [{
-      metric: 'solar.current.generation',
+      metric: "solar.current.generation",
       type: 0,
       points: [
-        { value: stats.currentGeneration, timestamp: new Date().getTime() }
+        { value: stats.currentGeneration, timestamp: stats.time },
       ],
-      tags: stats.tags
-    }]
-  })
+      tags: stats.tags,
+    }, {
+      metric: "solar.lifetime.power",
+      type: 0,
+      points: [
+        { value: stats.lifetimePower, timestamp: stats.time },
+      ],
+      tags: stats.tags,
+    }],
+  });
 
-  const options = {
+  const options: RequestInit = {
     method: "POST",
     headers,
     body,
-    redirect: "follow"
-  }
+    redirect: "follow",
+  };
+
+  // check = 'solar.status'
+  // status = status
+  // tags = ['{}:{}'.format(type, id)]
+
+  // api.ServiceCheck.check(check=check, status=status, tags=tags)
 
   fetch("https://api.datadoghq.com/api/v2/series/", options)
     .then((response) => response.text())
     .then((result) => console.log(result))
     .catch((error) => console.log("error", error));
 }
-// check = 'solar.status'
-// status = status
-// tags = ['{}:{}'.format(type, id)]
 
-// api.Metric.send([{
-//     'metric': 'solar.current.generation',
-//     'points': currentGeneration,
-//     'tags': '{}:{}'.format(type, id)
-// }])
-
-// api.ServiceCheck.check(check=check, status=status, tags=tags)
+function isInverter(device: Devices): device is Inverter {
+  return device.type === "Inverter";
+}
 
 const deviceList = await getDeviceList();
 const formatted = formatDevices(deviceList.devices);
-console.log(formatted);
 
-sendToDataDog(formatted['E00122103057026'])
+const results: Inverter[] = Object.values(formatted)
+  .filter(isInverter);
+
+results.forEach((inverter) => {
+  sendToDataDog(inverter);
+});
