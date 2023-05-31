@@ -6,18 +6,18 @@ async function request<TRequest, TResponse>(
   body?: TRequest,
   headers?: HeadersInit,
 ): Promise<TResponse> {
-  try {  
+  try {
     if (!headers) {
       headers = new Headers({
         "Content-Type": "application/json",
-      })
+      });
     }
 
     const options: RequestInit = {
       method,
       headers,
       body: JSON.stringify(body),
-      redirect: "follow"
+      redirect: "follow",
     };
 
     const response = await fetch(url, options);
