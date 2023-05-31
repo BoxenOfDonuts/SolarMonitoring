@@ -1,5 +1,6 @@
-import { load } from "https://deno.land/std@0.188.0/dotenv/mod.ts";
 import { parse } from "https://deno.land/std@0.188.0/datetime/mod.ts";
+import { post } from "./src/fetch.ts";
+import { apiKey } from "./src/constants.ts";
 // tomorrow - look at deno tasks to pass in the .env file
 // maybe spit some of this into other files
 // need to do the checks
@@ -10,11 +11,6 @@ import type {
   PSVInverter,
   PSVPowerMeter,
 } from "./psv-types.d.ts";
-const env = await load();
-
-const apiKey = env["DATADOG_API_KEY"];
-const appKey = env["DATADOG_APP_KEY"];
-const weatherApiKey = env["WEATHER_API_KEY"];
 
 class BaseDatadog {
   type: string;
@@ -30,7 +26,7 @@ class BaseDatadog {
     // # 0 - Ok, 1 - Warning, 2 - Critical, 3 - Unkown
     this.status = device.STATE === "working" ? 0 : 2;
     this.tags = [`${device.DEVICE_TYPE}:${device.SERIAL}`];
-    this.time = this.formatDate(device.CURTIME);
+    this.time = this.formatDate(device.DATATIME);
   }
 
   private formatDate(time: string) {
@@ -44,8 +40,8 @@ class BaseDatadog {
 }
 
 class Inverter extends BaseDatadog {
-  lifetimePower: number | null;
-  currentGeneration: number | null;
+  lifetimePower: number;
+  currentGeneration: number;
 
   constructor(device: PSVInverter) {
     super(device);
@@ -94,12 +90,13 @@ function formatDevices(devices: PSVDevices[]) {
 }
 
 async function sendToDataDog(stats: Inverter) {
+  const url = "https://api.datadoghq.com/api/v2/series/";
   const headers = new Headers({
     "DD-API-KEY": apiKey,
     "Content-Type": "application/json",
   });
 
-  const body = JSON.stringify({
+  const body = {
     series: [{
       metric: "solar.current.generation",
       type: 0,
@@ -115,25 +112,36 @@ async function sendToDataDog(stats: Inverter) {
       ],
       tags: stats.tags,
     }],
-  });
-
-  const options: RequestInit = {
-    method: "POST",
-    headers,
-    body,
-    redirect: "follow",
   };
 
-  // check = 'solar.status'
-  // status = status
-  // tags = ['{}:{}'.format(type, id)]
+  try {
+    const response = await post(url, body, headers);
+    console.log(response)
+  } catch (error) {
+    console.log("error sending metric to datadog", error);
+  }
+}
 
-  // api.ServiceCheck.check(check=check, status=status, tags=tags)
+async function sendCheck(stat: Devices) {
+  const headers = new Headers({
+    "DD-API-KEY": apiKey,
+    "Content-Type": "application/json",
+  });
 
-  fetch("https://api.datadoghq.com/api/v2/series/", options)
-    .then((response) => response.text())
-    .then((result) => console.log(result))
-    .catch((error) => console.log("error", error));
+  const body = {
+    check: "solar.status",
+    status: stat.status,
+    tags: stat.tags,
+  };
+
+  const url = "https://api.datadoghq.com/api/v1/check_run";
+
+  try {
+    const response = await post(url, body, headers);
+    console.log(response)
+  } catch (error) {
+    console.log("error sending check to datadog", error);
+  }
 }
 
 function isInverter(device: Devices): device is Inverter {
@@ -148,4 +156,5 @@ const results: Inverter[] = Object.values(formatted)
 
 results.forEach((inverter) => {
   sendToDataDog(inverter);
+  sendCheck(inverter);
 });
