@@ -46,7 +46,7 @@ interface WeatherData {
 }
 
 export async function getWeather(): Promise<
-  { sunrise: number; sunset: number } | Record<string | number | symbol, nevera>
+  { sunrise: number; sunset: number } | Record<string | number | symbol, never>
 > {
   const params = new URLSearchParams([
     ["units", "imperial"],
@@ -59,7 +59,10 @@ export async function getWeather(): Promise<
 
   try {
     const result = await get(URL) as WeatherData;
-    const { sunrise, sunset } = result.sys;
+    let { sunrise, sunset } = result.sys;
+    // returns in seconds not miliseconds
+    sunrise *= 1000
+    sunset *= 1000
     return { sunrise, sunset };
   } catch (error) {
     log.error(error);
