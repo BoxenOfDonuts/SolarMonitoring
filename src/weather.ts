@@ -1,6 +1,6 @@
 import { weatherApiKey } from "./constants.ts";
 import { get } from "./fetch.ts";
-import { log } from './log.ts'
+import { log } from "./log.ts";
 
 interface WeatherData {
   coord: {
@@ -61,8 +61,8 @@ export async function getWeather(): Promise<
     const result = await get(URL) as WeatherData;
     let { sunrise, sunset } = result.sys;
     // returns in seconds not miliseconds
-    sunrise *= 1000
-    sunset *= 1000
+    sunrise *= 1000;
+    sunset *= 1000;
     return { sunrise, sunset };
   } catch (error) {
     log.error(error);
