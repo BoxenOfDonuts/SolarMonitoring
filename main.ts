@@ -211,7 +211,7 @@ if (import.meta.main) {
   const sun = new Sun(0, 0);
   await sun.update();
   while (true) {
-    const now = Math.round(Date.now() / 1000);
+    const now = Date.now();
     if (now > sun.sunrise && now < sun.sunset) {
       main();
       await sleep(defaultSleep);
@@ -222,7 +222,7 @@ if (import.meta.main) {
       await sleep(itsDarkSleep);
       await sun.update();
     } else if (now < sun.sunrise) {
-      const sleepTime = sun.sunrise - Math.round(Date.now() / 1000);
+      const sleepTime = sun.sunrise - Date.now();
       log.info(
         `not sending metrics, it's dark. Sleeping for ${
           sleepTime / 1000 / 60 / 60
