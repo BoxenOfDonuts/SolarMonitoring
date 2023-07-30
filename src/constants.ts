@@ -1,4 +1,4 @@
-import { load } from "https://deno.land/std@0.188.0/dotenv/mod.ts";
+import { load } from "/deps.ts";
 const env = await load();
 
 const apiKey = env["DATADOG_API_KEY"];

@@ -1,4 +1,4 @@
-import { parse } from "https://deno.land/std@0.188.0/datetime/mod.ts";
+import { parse } from "./deps.ts";
 import { post } from "./src/fetch.ts";
 import {
   apiKey,
