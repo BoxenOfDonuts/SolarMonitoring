@@ -1,3 +1,4 @@
+import { log } from "./log.ts";
 type RequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 async function request<TRequest, TResponse>(
@@ -28,7 +29,7 @@ async function request<TRequest, TResponse>(
 
     return response.json() as Promise<TResponse>;
   } catch (error) {
-    console.log("Error:", error);
+    log.error(error);
     throw error;
   }
 }

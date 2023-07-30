@@ -1,5 +1,6 @@
 import { weatherApiKey } from "./constants.ts";
 import { get } from "./fetch.ts";
+import { log } from "./log.ts";
 
 interface WeatherData {
   coord: {
@@ -44,24 +45,31 @@ interface WeatherData {
   cod: number;
 }
 
-
-async function getWeather() {
+export async function getWeather(): Promise<
+  { sunrise: number; sunset: number } | Record<string | number | symbol, never>
+> {
   const params = new URLSearchParams([
     ["units", "imperial"],
-    ['zip', '63110,us'],
-    ['appId', `${weatherApiKey}`]
+    ["zip", "63110,us"],
+    ["appId", `${weatherApiKey}`],
   ]);
 
   const URL =
     `https://api.openweathermap.org/data/2.5/weather?${params.toString()}`;
-  
+
   try {
     const result = await get(URL) as WeatherData;
-    const { sunrise, sunset } = result.sys
-    return { sunrise, sunset }
+    let { sunrise, sunset } = result.sys;
+    // returns in seconds not miliseconds
+    sunrise *= 1000;
+    sunset *= 1000;
+    return { sunrise, sunset };
   } catch (error) {
-    console.log("error", error);
+    log.error(error);
+    return {};
   }
 }
 
-console.log( await getWeather());
+if (import.meta.main) {
+  log.info(await getWeather());
+}

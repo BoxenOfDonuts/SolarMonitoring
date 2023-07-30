@@ -1,6 +1,13 @@
-import { parse } from "https://deno.land/std@0.188.0/datetime/mod.ts";
+import { parse } from "#deps";
 import { post } from "./src/fetch.ts";
-import { apiKey } from "./src/constants.ts";
+import {
+  apiKey,
+  defaultSleep,
+  itsDarkSleep,
+  thirtyMinutes,
+} from "./src/constants.ts";
+import { log } from "./src/log.ts";
+import { getWeather } from "./src/weather.ts";
 
 import type {
   APIResponse,
@@ -8,6 +15,23 @@ import type {
   PSVInverter,
   PSVPowerMeter,
 } from "./src/psv-types.d.ts";
+
+class Sun {
+  sunrise: number;
+  sunset: number;
+
+  constructor(sunrise: number, sunset: number) {
+    // theres usually light for 30 minutes before sunrise and after sunset
+    this.sunrise = sunrise - thirtyMinutes;
+    this.sunset = sunset + thirtyMinutes;
+  }
+
+  async update() {
+    const { sunrise, sunset } = await getWeather();
+    this.sunrise = sunrise - thirtyMinutes;
+    this.sunset = sunset + thirtyMinutes;
+  }
+}
 
 class BaseDatadog {
   type: string;
@@ -51,9 +75,9 @@ class BaseDatadog {
 
     try {
       const response = await post(url, body, headers);
-      console.log(response);
+      log.debug(response);
     } catch (error) {
-      console.log("error sending check to datadog", error);
+      log.error("error sending check to datadog", error);
     }
   }
 }
@@ -95,9 +119,9 @@ class Inverter extends BaseDatadog {
 
     try {
       const response = await post(url, body, headers);
-      console.log(response);
+      log.debug(response);
     } catch (error) {
-      console.log("error sending metric to datadog", error);
+      log.error("error sending metric to datadog", error);
     }
   }
 }
@@ -130,9 +154,9 @@ class Meter extends BaseDatadog {
 
     try {
       const response = await post(url, body, headers);
-      console.log(response);
+      log.debug(response);
     } catch (error) {
-      console.log("error sending metric to datadog", error);
+      log.info("error sending metric to datadog", error);
     }
   }
 }
@@ -171,10 +195,43 @@ function isInverter(device: Devices): device is Inverter {
   return device.type === "Inverter";
 }
 
-const deviceList = await getDeviceList();
-const formatted = formatDevices(deviceList.devices);
+const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-Object.values(formatted).forEach((device: Devices) => {
-  device.sendMetrics();
-  device.sendCheck();
-});
+async function main() {
+  const deviceList = await getDeviceList();
+  const formatted = formatDevices(deviceList.devices);
+
+  Object.values(formatted).forEach((device: Devices) => {
+    device.sendMetrics();
+    device.sendCheck();
+  });
+}
+
+if (import.meta.main) {
+  const sun = new Sun(0, 0);
+  await sun.update();
+  while (true) {
+    const now = Date.now();
+    if (now > sun.sunrise && now < sun.sunset) {
+      main();
+      log.info(
+        `sent metrics, sleeping for ${defaultSleep / 1000 / 60} minutes`,
+      );
+      await sleep(defaultSleep);
+    } else if (now > sun.sunset) {
+      log.info(
+        `not sending metrics, it's dark. Sleeping for an hour`,
+      );
+      await sleep(itsDarkSleep);
+      await sun.update();
+    } else if (now < sun.sunrise) {
+      const sleepTime = sun.sunrise - Date.now();
+      log.info(
+        `not sending metrics, it's dark. Sleeping for ${
+          sleepTime / 1000 / 60 / 60
+        } hours until sunrise`,
+      );
+      await sleep(sleepTime);
+    }
+  }
+}
