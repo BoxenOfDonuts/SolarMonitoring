@@ -75,9 +75,9 @@ class BaseDatadog {
 
     try {
       const response = await post(url, body, headers);
-      log.info(response);
+      log.debug(response);
     } catch (error) {
-      log.info("error sending check to datadog", error);
+      log.error("error sending check to datadog", error);
     }
   }
 }
@@ -119,9 +119,9 @@ class Inverter extends BaseDatadog {
 
     try {
       const response = await post(url, body, headers);
-      log.info(response);
+      log.debug(response);
     } catch (error) {
-      log.info("error sending metric to datadog", error);
+      log.error("error sending metric to datadog", error);
     }
   }
 }
@@ -154,7 +154,7 @@ class Meter extends BaseDatadog {
 
     try {
       const response = await post(url, body, headers);
-      log.info(response);
+      log.debug(response);
     } catch (error) {
       log.info("error sending metric to datadog", error);
     }
@@ -214,6 +214,7 @@ if (import.meta.main) {
     const now = Date.now();
     if (now > sun.sunrise && now < sun.sunset) {
       main();
+      log.info(`sent metrics, sleeping for ${defaultSleep / 1000 / 60} minutes`)
       await sleep(defaultSleep);
     } else if (now > sun.sunset) {
       log.info(
