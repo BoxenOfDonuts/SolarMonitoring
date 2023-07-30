@@ -16,7 +16,7 @@ function getEnv(key: string): string {
     );
   }
   return result;
-};
+}
 
 export {
   apiKey,

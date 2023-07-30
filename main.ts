@@ -214,7 +214,9 @@ if (import.meta.main) {
     const now = Date.now();
     if (now > sun.sunrise && now < sun.sunset) {
       main();
-      log.info(`sent metrics, sleeping for ${defaultSleep / 1000 / 60} minutes`)
+      log.info(
+        `sent metrics, sleeping for ${defaultSleep / 1000 / 60} minutes`,
+      );
       await sleep(defaultSleep);
     } else if (now > sun.sunset) {
       log.info(
