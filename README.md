@@ -49,7 +49,7 @@ services:
     environment:
       - PUID=1028 # optional
       - PGID=65536 # optional
-      - TZ=America/Central # optional
+      - TZ=America/Chicago # optional
       - DATADOG_API_KEY=api_key
       - DATADOG_APP_KEY=app_key
       - WEATHER_API_KEY=weather_api_key
