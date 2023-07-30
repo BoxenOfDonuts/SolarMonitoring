@@ -1,4 +1,4 @@
-import { log } from "/deps.ts";
+import { log } from "#deps";
 
 await log.setup({
   //define handlers

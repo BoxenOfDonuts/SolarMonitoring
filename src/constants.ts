@@ -1,4 +1,4 @@
-import { load } from "/deps.ts";
+import { load } from "#deps";
 const env = await load();
 
 const apiKey = env["DATADOG_API_KEY"];

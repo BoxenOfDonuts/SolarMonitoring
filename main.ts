@@ -1,4 +1,4 @@
-import { parse } from "./deps.ts";
+import { parse } from "#deps";
 import { post } from "./src/fetch.ts";
 import {
   apiKey,
