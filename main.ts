@@ -28,6 +28,10 @@ class Sun {
 
   async update() {
     const { sunrise, sunset } = await getWeather();
+    if (!sunrise || !sunset) {
+      log.error("No sunrise or sunset, using yesterday's values");
+      return;
+    }
     this.sunrise = sunrise - thirtyMinutes;
     this.sunset = sunset + thirtyMinutes;
   }
@@ -208,13 +212,16 @@ async function main() {
 }
 
 if (import.meta.main) {
+  log.info("Starting script");
   const sun = new Sun(0, 0);
+  log.info("Getting sunrise and sunset ");
   await sun.update();
+  log.info("Staring main loop");
   while (true) {
     const now = Date.now();
     if (now > sun.sunrise && now < sun.sunset) {
       main();
-      log.info(
+      log.debug(
         `sent metrics, sleeping for ${defaultSleep / 1000 / 60} minutes`,
       );
       await sleep(defaultSleep);

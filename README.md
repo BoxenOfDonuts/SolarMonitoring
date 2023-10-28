@@ -1,10 +1,14 @@
 # SolarMonitoring
-This project was created because there is no monitoring or alerting when inverters fail. I happened to be checking the sunpower app one day to show a friend and noticed I had an alert. Turns out an inverter had be down for who knows how long. As a bonus I can now track a bunch of metrics per inverter, which is not possible using their app.
+
+This project was created because there is no monitoring or alerting when
+inverters fail. I happened to be checking the sunpower app one day to show a
+friend and noticed I had an alert. Turns out an inverter had be down for who
+knows how long. As a bonus I can now track a bunch of metrics per inverter,
+which is not possible using their app.
 
 ### Requirements
 
 Create an .env file or add the following to your env
-
 
 ```
 DATADOG_API_KEY=api_key
@@ -14,21 +18,17 @@ WEATHER_API_KEY=weather_api_key
 
 ## Running with deno
 
-To run the deno project 
-
+To run the deno project
 
 `$ deno task run`
 
-
 To run the deno project with a watcher
-
 
 `$ deno task dev`
 
 If you dont want to use a task for some reason
 
-
- `deno run  --allow-net=192.168.0.68,api.datadoghq.com --allow-read=. --allow-env --watch main.ts`
+`deno run  --allow-net=192.168.0.68,api.datadoghq.com --allow-read=. --allow-env --watch main.ts`
 
 See the `deno.jsonc` doc for all the commands.
 
@@ -57,4 +57,19 @@ services:
 ```
 
 ## Notes
-Most of the original python was writin because of the [notes]([https://github.com/ginoledesma/sunpower-pvs-exporter/blob/master/sunpower_pvs_notes.md) here.
+
+Most of the original python was written because of the
+[notes]([https://github.com/ginoledesma/sunpower-pvs-exporter/blob/master/sunpower_pvs_notes.md)
+here.
+
+
+### Building the project
+To build for docker hub build it once without the tag, then once with the tag you want.
+
+
+```
+// will tag as latest
+sudo docker build -t boxenofdonuts/solar-monitoring
+// will tag as 1.0.3
+sudo docker build -t boxenofdonuts/solar-monitoring:1.0.3 .
+```
