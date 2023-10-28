@@ -60,7 +60,7 @@ export async function getWeather(): Promise<
   try {
     const result = await get(URL) as WeatherData;
     let { sunrise, sunset } = result.sys;
-    // returns in seconds not miliseconds
+    // returns in seconds not milliseconds
     sunrise *= 1000;
     sunset *= 1000;
     return { sunrise, sunset };
