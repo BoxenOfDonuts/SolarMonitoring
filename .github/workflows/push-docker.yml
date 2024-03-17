@@ -30,4 +30,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/solar-monitor:latest
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/solar-monitoring:latest
