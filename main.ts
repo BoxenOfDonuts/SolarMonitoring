@@ -3,7 +3,7 @@ import { post } from "./src/fetch.ts";
 import {
   apiKey,
   defaultSleep,
-  itsDarkSleep,
+  oneHour,
   thirtyMinutes,
 } from "./src/constants.ts";
 import { log } from "./src/log.ts";
@@ -199,6 +199,12 @@ function isInverter(device: Devices): device is Inverter {
   return device.type === "Inverter";
 }
 
+function timeLeftInDay() {
+  const now = Date.now();
+  const midnight = new Date().setHours(24, 0, 0, 0);
+  return midnight - now;
+}
+
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
 async function main() {
@@ -227,9 +233,10 @@ if (import.meta.main) {
       await sleep(defaultSleep);
     } else if (now > sun.sunset) {
       log.info(
-        `not sending metrics, it's dark. Sleeping for an hour`,
+        `not sending metrics, it's dark. Sleeping till tomorrow at 1 am`,
       );
-      await sleep(itsDarkSleep);
+      const sleepTime = timeLeftInDay() + oneHour;
+      await sleep(sleepTime);
       await sun.update();
     } else if (now < sun.sunrise) {
       const sleepTime = sun.sunrise - Date.now();

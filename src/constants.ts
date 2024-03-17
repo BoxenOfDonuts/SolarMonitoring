@@ -5,7 +5,7 @@ const apiKey = getEnv("DATADOG_API_KEY");
 const appKey = getEnv("DATADOG_APP_KEY");
 const weatherApiKey = getEnv("WEATHER_API_KEY");
 const defaultSleep = 2 * 60 * 1000; // 2 minutes
-const itsDarkSleep = 60 * 60 * 1000; // 1 hour
+const oneHour = 60 * 60 * 1000; // 1 hour
 const thirtyMinutes = 30 * 60 * 1000; // 30 minutes
 
 function getEnv(key: string): string {
@@ -22,7 +22,7 @@ export {
   apiKey,
   appKey,
   defaultSleep,
-  itsDarkSleep,
+  oneHour,
   thirtyMinutes,
   weatherApiKey,
 };
