@@ -62,14 +62,12 @@ Most of the original python was written because of the
 [notes]([https://github.com/ginoledesma/sunpower-pvs-exporter/blob/master/sunpower_pvs_notes.md)
 here.
 
+### With Docker Hub
 
-### Building the project
-To build for docker hub build it once without the tag, then once with the tag you want.
-
+The project automatically builds and pushes to docker hub, however it only uses
+the 'latest' tag. To tag run the following:
 
 ```
-// will tag as latest
-sudo docker build -t boxenofdonuts/solar-monitoring
-// will tag as 1.0.3
 sudo docker build -t boxenofdonuts/solar-monitoring:1.0.3 .
+// This will tag it as version 1.0.3
 ```
