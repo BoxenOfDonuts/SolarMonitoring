@@ -7,6 +7,7 @@ const weatherApiKey = getEnv("WEATHER_API_KEY");
 const defaultSleep = 2 * 60 * 1000; // 2 minutes
 const oneHour = 60 * 60 * 1000; // 1 hour
 const thirtyMinutes = 30 * 60 * 1000; // 30 minutes
+const twoMinutes = 2 * 60 * 1000; // 2 minutes
 
 function getEnv(key: string): string {
   const result = env[key] || Deno.env.get(key);
@@ -24,5 +25,6 @@ export {
   defaultSleep,
   oneHour,
   thirtyMinutes,
+  twoMinutes,
   weatherApiKey,
 };

@@ -5,6 +5,7 @@ import {
   defaultSleep,
   oneHour,
   thirtyMinutes,
+  twoMinutes,
 } from "./src/constants.ts";
 import { log } from "./src/log.ts";
 import { getWeather } from "./src/weather.ts";
@@ -160,7 +161,7 @@ class Meter extends BaseDatadog {
       const response = await post(url, body, headers);
       log.debug(response);
     } catch (error) {
-      log.info("error sending metric to datadog", error);
+      log.error("error sending metric to datadog", error);
     }
   }
 }
@@ -169,7 +170,11 @@ async function getDeviceList(): Promise<APIResponse> {
   const response = await fetch(
     "http://192.168.0.68/cgi-bin/dl_cgi?Command=DeviceList",
   );
-  const data = await response.json();
+  const data = await response.json().catch(async (error) => {
+    log.error("Error parsing response", error);
+    await sleep(twoMinutes);
+    return getDeviceList();
+  });
   return data;
 }
 
@@ -232,7 +237,7 @@ if (import.meta.main) {
       );
       await sleep(defaultSleep);
     } else if (now > sun.sunset) {
-      log.info(
+      log.debug(
         `not sending metrics, it's dark. Sleeping till tomorrow at 1 am`,
       );
       const sleepTime = timeLeftInDay() + oneHour;
@@ -240,10 +245,8 @@ if (import.meta.main) {
       await sun.update();
     } else if (now < sun.sunrise) {
       const sleepTime = sun.sunrise - Date.now();
-      log.info(
-        `not sending metrics, it's dark. Sleeping for ${
-          sleepTime / 1000 / 60 / 60
-        } hours until sunrise`,
+      log.debug(
+        `not sending metrics, it's dark. Sleeping until sunrise`,
       );
       await sleep(sleepTime);
     }
