@@ -4,14 +4,17 @@ import {
   apiKey,
   defaultSleep,
   oneHour,
+  password,
   thirtyMinutes,
   twoMinutes,
+  username,
 } from "./src/constants.ts";
 import { log } from "./src/log.ts";
 import { getWeather } from "./src/weather.ts";
 
 import type {
   APIResponse,
+  GQLResponse,
   PSVDevices,
   PSVInverter,
   PSVPowerMeter,
@@ -176,6 +179,44 @@ async function getDeviceList(): Promise<APIResponse> {
     return getDeviceList();
   });
   return data;
+}
+
+async function getPanelData(): Promise<GQLResponse> {
+  const url = "https://edp-api-graphql.edp.sunpower.com/graphql";
+  const headers = new Headers({
+    "Content-Type": "application/json",
+    "Authorization": `Bearer 123`, // ha no, need to get bearer token
+  });
+  const body = {};
+
+  const data = await post(url, body, headers).catch(
+    async (error) => {
+      log.error("Error getting panel data", error);
+      await sleep(twoMinutes);
+      return getPanelData();
+    },
+  ) as GQLResponse;
+  return data;
+}
+
+// this needs to go into a class or something
+// but want to get it into repo first
+function formatPannelData(data: GQLResponse) {
+  const x = data.data.panels.panels.map((pannel) => {
+    const { serialNumber, alerts } = pannel;
+    const latestData = pannel.hourlyData.pop()!;
+    const { timestamp, energy, power } = latestData;
+
+    return {
+      serialNumber,
+      alerts,
+      energy, // in watts?
+      power, // in kWh
+      timestamp,
+    };
+  });
+
+  return x;
 }
 
 type Devices = Inverter | Meter;

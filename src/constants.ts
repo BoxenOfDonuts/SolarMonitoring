@@ -8,6 +8,9 @@ const defaultSleep = 2 * 60 * 1000; // 2 minutes
 const oneHour = 60 * 60 * 1000; // 1 hour
 const thirtyMinutes = 30 * 60 * 1000; // 30 minutes
 const twoMinutes = 2 * 60 * 1000; // 2 minutes
+const username = getEnv("UI_USERNAME");
+const password = getEnv("UI_PASSWORD");
+const siteKey = getEnv("SITE_KEY");
 
 function getEnv(key: string): string {
   const result = env[key] || Deno.env.get(key);
@@ -24,7 +27,10 @@ export {
   appKey,
   defaultSleep,
   oneHour,
+  password,
+  siteKey,
   thirtyMinutes,
   twoMinutes,
+  username,
   weatherApiKey,
 };

@@ -96,4 +96,62 @@ interface APIResponse {
   devices: PSVDevices[];
 }
 
-export { APIResponse, PSVDevices, PSVInverter, PSVPowerMeter };
+interface GQLResponse {
+  data: {
+    panels: {
+      hasPanelLayout: boolean;
+      siteDailyEnergyProduction: {
+        timestamp: string;
+        value: number;
+        __typename: string;
+      };
+      siteHourlyPowerProduction: {
+        timestamp: string;
+        value: number | null;
+        __typename: string;
+      }[];
+      panels: {
+        serialNumber: string;
+        dailyEnergyProduction: number;
+        sevenDayAverage: number;
+        lastCommunicationTimestamp: string;
+        peakPowerProduction: {
+          timestamp: string;
+          value: number;
+          __typename: string;
+        };
+        energyColorCode: number;
+        alerts: {
+          alertStatus: any;
+          deviceSerialNumber: string;
+          deviceType: any;
+          deviceKey: any;
+          alertId: any;
+          alertType: any;
+          eventTimestamp: string;
+          __typename: any;
+        };
+        hourlyData: {
+          timestamp: string;
+          power: number;
+          energy: number;
+          powerColorCode: number;
+          __typename: string;
+        }[];
+        layout: {
+          xCoordinate: number;
+          yCoordinate: number;
+          rotation: number;
+          azimuth: number;
+          orientation: null;
+          __typename: string;
+        };
+        __typename: string;
+      }[];
+      weather: any; // could type based on query. Maybe during the day it'll have data
+      __typename: string;
+    };
+  };
+}
+
+export { APIResponse, GQLResponse, PSVDevices, PSVInverter, PSVPowerMeter };
