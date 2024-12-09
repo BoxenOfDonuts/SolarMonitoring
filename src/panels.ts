@@ -23,7 +23,8 @@ export class Panel {
   }[];
   status: number;
   tags: string[];
-  currentGeneration: number;
+  currentPower: number;
+  currentEnergy: number;
   time: number;
 
   constructor(panel: GQLResponse["data"]["panels"]["panels"][number]) {
@@ -33,7 +34,8 @@ export class Panel {
     this.status = panel.alerts ? 2 : 0;
     this.tags = [`inverter:${panel.serialNumber}`];
 
-    this.currentGeneration = panel.hourlyData?.at(-1)?.energy ?? 0;
+    this.currentPower = panel.hourlyData?.at(-1)?.power ?? 0;
+    this.currentEnergy = panel.hourlyData?.at(-1)?.energy ?? 0;
     this.time = this.formatDate(panel.hourlyData?.at(-1)?.timestamp ?? "");
   }
 
@@ -76,9 +78,15 @@ export class Panel {
     const body = {
       series: [
         {
-          metric: "solar.current.generation",
+          metric: "solar.current.power",
           type: 0,
-          points: [{ value: this.currentGeneration, timestamp: this.time }],
+          points: [{ value: this.currentPower, timestamp: this.time }],
+          tags: this.tags,
+        },
+        {
+          metric: "solar.current.energy",
+          type: 0,
+          points: [{ value: this.currentEnergy, timestamp: this.time }],
           tags: this.tags,
         },
         // {

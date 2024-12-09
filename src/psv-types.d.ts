@@ -97,6 +97,12 @@ interface APIResponse {
 }
 
 interface GQLResponse {
+  errors: {
+    message: string;
+    extensions: {
+      code: string;
+    };
+  }[];
   data: {
     panels: {
       hasPanelLayout: boolean;
