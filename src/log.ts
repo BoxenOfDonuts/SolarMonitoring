@@ -4,7 +4,7 @@ await log.setup({
   //define handlers
   handlers: {
     console: new log.handlers.ConsoleHandler("DEBUG", {
-      formatter: "{datetime} {levelName} {msg}",
+      formatter: "{levelName} {datetime} {msg}",
     }),
   },
   //assign handlers to loggers
