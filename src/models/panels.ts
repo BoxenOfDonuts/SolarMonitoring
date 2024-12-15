@@ -1,10 +1,10 @@
-import { GQLResponse } from "./psv-types.d.ts";
-import { post } from "./fetch.ts";
-import { log } from "./log.ts";
-import { apiKey } from "./constants.ts";
+import { PanelQueryResponse } from "./psv-types.d.ts";
+import { post } from "../conf/fetch.ts";
+import { log } from "#log";
+import { apiKey } from "#constants";
 import { parse } from "#deps";
 
-export class Panel {
+export default class Panel {
   serialNumber: string;
   alerts: {
     alertStatus: any;
@@ -27,7 +27,7 @@ export class Panel {
   currentEnergy: number;
   time: number;
 
-  constructor(panel: GQLResponse["data"]["panels"]["panels"][number]) {
+  constructor(panel: PanelQueryResponse["data"]["panels"]["panels"][number]) {
     this.serialNumber = panel.serialNumber;
     this.alerts = panel.alerts;
     this.hourlyData = panel.hourlyData;

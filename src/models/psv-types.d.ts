@@ -96,7 +96,7 @@ interface APIResponse {
   devices: PSVDevices[];
 }
 
-interface GQLResponse {
+interface PanelQueryResponse {
   errors: {
     message: string;
     extensions: {
@@ -160,4 +160,32 @@ interface GQLResponse {
   };
 }
 
-export { APIResponse, GQLResponse, PSVDevices, PSVInverter, PSVPowerMeter };
+interface DataSeriesResponse {
+  errors: {
+    message: string;
+    extensions: {
+      code: string;
+    };
+  }[];
+  data: {
+    power: {
+      powerDataSeries: {
+        production: [string, string, string][];
+      };
+    };
+    energyRange: {
+      energyDataSeries: {
+        production: [string, string, string][];
+      };
+    };
+  };
+}
+
+export {
+  APIResponse,
+  PanelQueryResponse,
+  PSVDevices,
+  PSVInverter,
+  PSVPowerMeter,
+  DataSeriesResponse,
+};

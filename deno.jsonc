@@ -6,6 +6,8 @@
     "build:windows": "deno compile --allow-net=192.168.0.68,api.datadoghq.com,api.openweathermap.org --allow-read=. --allow-env main.ts --target=x86_64-pc-windows-msvc"
   },
   "imports": {
-    "#deps": "./deps.ts"
+    "#deps": "./deps.ts",
+    "#log": "./src/conf/log.ts",
+    "#constants": "./src/conf/constants.ts"
   }
 }
