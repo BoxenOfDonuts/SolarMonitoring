@@ -104,7 +104,7 @@ export default class SunPower {
     // start.setHours(0, 0, 0, 0);
 
     const end = new Date(now);
-    // end.setHours(23, 59, 59, 999);
+    end.setMinutes(end.getMinutes() - (end.getMinutes() % 5), 0, 0);
 
     return {
       start: this.formatDate(start),
