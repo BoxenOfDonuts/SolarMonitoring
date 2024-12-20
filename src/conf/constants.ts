@@ -12,6 +12,7 @@ const twoMinutes = 2 * 60 * 1000; // 2 minutes
 const username = getEnv("UI_USERNAME");
 const password = getEnv("UI_PASSWORD");
 const siteKey = getEnv("SITE_KEY");
+const DENO_ENV = getOptionalEnv("DENO_ENV", "PRODUCTION");
 
 function getEnv(key: string): string {
   const result = env[key] || Deno.env.get(key);
@@ -21,6 +22,10 @@ function getEnv(key: string): string {
     );
   }
   return result;
+}
+
+function getOptionalEnv(key: string, defaultValue: string): string | undefined {
+  return env[key] || Deno.env.get(key) || defaultValue;
 }
 
 export {
@@ -35,4 +40,5 @@ export {
   username,
   weatherApiKey,
   longSleep,
+  DENO_ENV,
 };

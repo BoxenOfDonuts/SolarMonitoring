@@ -1,4 +1,5 @@
 import { log } from "#deps";
+import { DENO_ENV } from "#constants";
 
 await log.setup({
   //define handlers
@@ -10,7 +11,7 @@ await log.setup({
   //assign handlers to loggers
   loggers: {
     default: {
-      level: "INFO",
+      level: DENO_ENV === "DEV" ? "DEBUG" : "INFO",
       handlers: ["console"],
     },
   },
