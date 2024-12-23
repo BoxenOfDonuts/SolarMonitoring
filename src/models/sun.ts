@@ -1,4 +1,4 @@
-import { thirtyMinutes, weatherApiKey } from "#constants";
+import { thirtyMinutes, weatherApiKey, weatherLocation } from "#constants";
 import { log } from "#log";
 import { get } from "../conf/fetch.ts";
 
@@ -63,7 +63,7 @@ export default class Sun {
   > {
     const params = new URLSearchParams([
       ["units", "imperial"],
-      ["zip", "63110,us"],
+      ["zip", `${weatherLocation}`],
       ["appId", `${weatherApiKey}`],
     ]);
 

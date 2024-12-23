@@ -139,6 +139,11 @@ export default class SunPower {
       return this.fetchData(body, retries - 1);
     }
 
+    if (data?.errors) {
+      log.error("Error fetching data", { errors: data.errors });
+      // throw new Error("Failed to fetch data");
+    }
+
     return data;
   }
 

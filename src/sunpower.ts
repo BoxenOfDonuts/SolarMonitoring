@@ -13,13 +13,13 @@ import {
 import { log } from "#log";
 import { parse } from "#deps";
 
-function timeLeftInDay() {
+function timeLeftInDay(): number {
   const now = Date.now();
   const midnight = new Date().setHours(24, 0, 0, 0);
   return midnight - now;
 }
 
-function formatDate(time: string) {
+function formatDate(time: string): number {
   const format = "yyyy-MM-ddTHH:mm:ss";
   const date = parse(time, format).getTime() / 1000;
   return date;
@@ -29,92 +29,107 @@ function formatSeriesForDD(
   series: [string, string, string][],
   metric: string,
   tags: string[]
-) {
-  return series.reduce(
-    (acc, series) => {
-      const [timestamp, value, _] = series;
-      acc.push({
-        metric,
-        type: 0,
-        points: [
-          { value: parseFloat(value), timestamp: formatDate(timestamp) },
-        ],
-        tags,
-      });
-      return acc;
-    },
-    [] as {
-      metric: string;
-      type: number;
-      points: { value: number; timestamp: number }[];
-      tags: string[];
-    }[]
-  );
+): {
+  metric: string;
+  type: number;
+  points: { value: number; timestamp: number }[];
+  tags: string[];
+}[] {
+  if (!series || !Array.isArray(series) || series.length === 0) {
+    log.error("No series data or invalid format");
+    return [];
+  }
+  return series.reduce((acc, series) => {
+    const [timestamp, value, _] = series;
+    acc.push({
+      metric,
+      type: 0,
+      points: [{ value: parseFloat(value), timestamp: formatDate(timestamp) }],
+      tags,
+    });
+    return acc;
+  }, [] as { metric: string; type: number; points: { value: number; timestamp: number }[]; tags: string[] }[]);
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-async function sendMetrics() {
-  const [panelData, siteData] = await Promise.all([
-    Client.getPanelData(),
-    Client.getSeriesData(),
-  ]);
+async function sendMetrics(): Promise<void> {
+  try {
+    const [panelData, siteData] = await Promise.all([
+      Client.getPanelData(),
+      Client.getSeriesData(),
+    ]);
 
-  const panels = panelData.data.panels.panels.map((panel) => {
-    return new Panel(panel);
-  });
+    if (panelData?.data?.panels?.panels.length > 0) {
+      const panels = panelData.data.panels.panels.map(
+        (panel) => new Panel(panel)
+      );
+      panels.forEach((panel) => {
+        panel.sendCheck();
+        panel.sendMetrics();
+      });
+    } else {
+      log.error("No panel data found");
+    }
 
-  const productionSeries = formatSeriesForDD(
-    siteData.data.power.powerDataSeries.production,
-    "solar.current.power",
-    ["site:power"]
-  );
-  const energySeries = formatSeriesForDD(
-    siteData.data.energyRange.energyDataSeries.production,
-    "solar.current.energy",
-    ["site:energy"]
-  );
+    const productionData =
+      siteData?.data?.power?.powerDataSeries?.production || [];
+    const energyData =
+      siteData?.data?.energyRange?.energyDataSeries?.production || [];
 
-  panels.forEach((panel) => {
-    panel.sendCheck();
-    panel.sendMetrics();
-  });
+    if (productionData.length === 0 || energyData.length === 0) {
+      log.error("Missing site power or site energy data");
+    }
 
-  Dog.sendMetrics(productionSeries.concat(energySeries));
+    const productionSeries = formatSeriesForDD(
+      productionData,
+      "solar.current.power",
+      ["site:power"]
+    );
+    const energySeries = formatSeriesForDD(energyData, "solar.current.energy", [
+      "site:energy",
+    ]);
+
+    Dog.sendMetrics(productionSeries.concat(energySeries));
+  } catch (error) {
+    log.error("Error in sendMetrics:", error);
+  }
 }
 
-export async function main() {
-  log.info("Getting sunrise and sunset ");
+export async function main(): Promise<void> {
+  log.info("Getting sunrise and sunset");
   await sun.initialize();
-  log.info("Staring main loop");
+  log.info("Starting main loop");
   while (true) {
-    const now = Date.now();
-    if (now > sun.sunrise && now < sun.sunset) {
-      sendMetrics();
-      log.debug(`sent metrics, sleeping for ${longSleep / 1000 / 60} minutes`);
-      await sleep(longSleep);
-    } else if (now > sun.sunset) {
-      log.debug(
-        `not sending metrics, it's dark. Sleeping till tomorrow at 1 am`
-      );
-      const sleepTime = timeLeftInDay() + oneHour;
-      await sleep(sleepTime);
-      await sun.update();
-    } else if (now < sun.sunrise) {
-      const sleepTime = sun.sunrise - Date.now();
-      log.debug(`not sending metrics, it's dark. Sleeping until sunrise`);
-      await sleep(sleepTime);
+    try {
+      const now = Date.now();
+      if (now > sun.sunrise && now < sun.sunset) {
+        await sendMetrics();
+        log.debug(
+          `Sent metrics, sleeping for ${longSleep / 1000 / 60} minutes`
+        );
+        await sleep(longSleep);
+      } else if (now > sun.sunset) {
+        log.debug(
+          "Not sending metrics, it's dark. Sleeping till tomorrow at 1 am"
+        );
+        const sleepTime = timeLeftInDay() + oneHour;
+        await sleep(sleepTime);
+        await sun.update();
+      } else if (now < sun.sunrise) {
+        const sleepTime = sun.sunrise - Date.now();
+        log.debug("Not sending metrics, it's dark. Sleeping until sunrise");
+        await sleep(sleepTime);
+      }
+    } catch (error) {
+      log.error("Error in main loop:", error);
+      await sleep(10000); // Optional: wait a bit before retrying
     }
   }
 }
 
-const Client = new SunPower({
-  username,
-  password,
-  siteKey,
-});
-
-const Dog = new BaseDatadog({ apiKey: apiKey });
+const Client = new SunPower({ username, password, siteKey });
+const Dog = new BaseDatadog({ apiKey });
 const sun = new Sun();
 
 if (import.meta.main) {

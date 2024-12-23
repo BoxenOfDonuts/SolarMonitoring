@@ -4,6 +4,7 @@ const env = await load();
 const apiKey = getEnv("DATADOG_API_KEY");
 const appKey = getEnv("DATADOG_APP_KEY");
 const weatherApiKey = getEnv("WEATHER_API_KEY");
+const weatherLocation = getEnv("WEATHER_LOCATION");
 const defaultSleep = 2 * 60 * 1000; // 2 minutes
 const longSleep = 15 * 60 * 1000; // 1 hour
 const oneHour = 60 * 60 * 1000; // 1 hour
@@ -39,6 +40,7 @@ export {
   twoMinutes,
   username,
   weatherApiKey,
+  weatherLocation,
   longSleep,
   DENO_ENV,
 };
