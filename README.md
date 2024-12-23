@@ -14,6 +14,7 @@ Create an .env file or add the following to your env
 DATADOG_API_KEY=api_key
 DATADOG_APP_KEY=app_key
 WEATHER_API_KEY=weather_api_key
+WEATHER_LOCATION=zip_code,country_code
 ```
 
 ## Running with deno
@@ -53,8 +54,11 @@ services:
       - DATADOG_API_KEY=api_key
       - DATADOG_APP_KEY=app_key
       - WEATHER_API_KEY=weather_api_key
+      - WEATHER_LOCATION=98109,us
     restart: unless-stopped
 ```
+
+You can add the DENO_ENV=dev environment to get debug logs
 
 ## Notes
 

@@ -161,3 +161,5 @@ cython_debug/
 
 # don't commit docker-compose
 docker-compose.*yml
+
+**launch.json

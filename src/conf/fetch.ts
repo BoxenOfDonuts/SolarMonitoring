@@ -1,11 +1,11 @@
-import { log } from "./log.ts";
+import { log } from "#log";
 type RequestMethod = "GET" | "POST" | "PUT" | "PATCH" | "DELETE";
 
 async function request<TRequest, TResponse>(
   url: string,
   method: RequestMethod,
   body?: TRequest,
-  headers?: HeadersInit,
+  headers?: HeadersInit
 ): Promise<TResponse> {
   try {
     if (!headers) {
@@ -41,21 +41,21 @@ export async function get<TResponse>(url: string): Promise<TResponse> {
 export async function post<TRequest, TResponse>(
   url: string,
   body?: TRequest,
-  headers?: HeadersInit,
+  headers?: HeadersInit
 ): Promise<TResponse> {
   return request<TRequest, TResponse>(url, "POST", body, headers);
 }
 
 export async function put<TRequest, TResponse>(
   url: string,
-  body?: TRequest,
+  body?: TRequest
 ): Promise<TResponse> {
   return request<TRequest, TResponse>(url, "PUT", body);
 }
 
 export async function patch<TRequest, TResponse>(
   url: string,
-  body?: TRequest,
+  body?: TRequest
 ): Promise<TResponse> {
   return request<TRequest, TResponse>(url, "PATCH", body);
 }
