@@ -7,6 +7,10 @@ Also might be good to make log level configurable [x]
 
 Be able to choose if it starts psv6 or sunpower ?
 
+Upgrade to deno 2
+
+Combine panel and timeseries query into one query, stop being lazy about it
+
 ### updates for config / constants
 
 create config / contants file. Export config, then can use it like
