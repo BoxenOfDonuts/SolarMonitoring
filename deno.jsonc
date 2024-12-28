@@ -1,11 +1,13 @@
 {
   "tasks": {
-    "dev": "deno run  --allow-net=192.168.0.68,api.datadoghq.com,api.openweathermap.org --allow-read=. --allow-env --watch main.ts",
-    "run": "deno run --allow-net=192.168.0.68,api.datadoghq.com,api.openweathermap.org --allow-read=. --allow-env main.ts",
+    "dev": "deno run  --allow-net=192.168.0.68,api.datadoghq.com,api.openweathermap.org,edp-api-graphql.edp.sunpower.com,edp-api.edp.sunpower.com --allow-read=. --allow-env --watch main.ts",
+    "run": "deno run --allow-net=192.168.0.68,api.datadoghq.com,api.openweathermap.org,edp-api-graphql.edp.sunpower.com,edp-api.edp.sunpower.com --allow-read=. --allow-env main.ts",
     "build:linux": "deno compile --allow-net=192.168.0.68,api.datadoghq.com,api.openweathermap.org --allow-read=. --allow-env main.ts --target=x86_64-unknown-linux-gnu",
     "build:windows": "deno compile --allow-net=192.168.0.68,api.datadoghq.com,api.openweathermap.org --allow-read=. --allow-env main.ts --target=x86_64-pc-windows-msvc"
   },
   "imports": {
-    "#deps": "./deps.ts"
+    "#deps": "./deps.ts",
+    "#log": "./src/conf/log.ts",
+    "#constants": "./src/conf/constants.ts"
   }
 }
