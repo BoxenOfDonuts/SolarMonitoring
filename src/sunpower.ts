@@ -30,7 +30,7 @@ function formatDate(time: string): number {
 function formatSeriesForDatadog(
   series: [string, string, string][],
   metric: string,
-  tags: string[],
+  tags: string[]
 ): {
   metric: string;
   type: number;
@@ -47,10 +47,12 @@ function formatSeriesForDatadog(
       acc.push({
         metric,
         type: 0,
-        points: [{
-          value: parseFloat(value),
-          timestamp: formatDate(timestamp),
-        }],
+        points: [
+          {
+            value: parseFloat(value),
+            timestamp: formatDate(timestamp),
+          },
+        ],
         tags,
       });
       return acc;
@@ -60,21 +62,25 @@ function formatSeriesForDatadog(
       type: number;
       points: { value: number; timestamp: number }[];
       tags: string[];
-    }[],
+    }[]
   );
 }
 
-function formatPanelDataForDatadog(
-  panels: Panel[],
-): { series: MetricBody[]; checks: CheckBody[] } {
-  return panels.reduce((dataObj, panel) => {
-    dataObj.checks.push(panel.getCheckBody());
-    dataObj.series.push(...panel.getMetricsBody());
-    return dataObj;
-  }, {
-    checks: [] as CheckBody[],
-    series: [] as MetricBody[],
-  });
+function formatPanelDataForDatadog(panels: Panel[]): {
+  series: MetricBody[];
+  checks: CheckBody[];
+} {
+  return panels.reduce(
+    (dataObj, panel) => {
+      dataObj.checks.push(panel.getCheckBody());
+      dataObj.series.push(...panel.getMetricsBody());
+      return dataObj;
+    },
+    {
+      checks: [] as CheckBody[],
+      series: [] as MetricBody[],
+    }
+  );
 }
 
 async function sendMetrics(): Promise<void> {
@@ -102,12 +108,12 @@ async function sendMetrics(): Promise<void> {
     const productionSeries = formatSeriesForDatadog(
       productionData,
       "solar.current.power",
-      ["site:power"],
+      ["site:power"]
     );
     const energySeries = formatSeriesForDatadog(
       energyData,
       "solar.current.energy",
-      ["site:energy"],
+      ["site:energy"]
     );
 
     Dog.sendMetrics([...productionSeries, ...energySeries]);
@@ -126,12 +132,12 @@ export async function main(): Promise<void> {
       if (now > sun.sunrise && now < sun.sunset) {
         await sendMetrics();
         log.debug(
-          `Sent metrics, sleeping for ${longSleep / 1000 / 60} minutes`,
+          `Sent metrics, sleeping for ${longSleep / 1000 / 60} minutes`
         );
         await sleep(longSleep);
       } else if (now > sun.sunset) {
         log.debug(
-          "Not sending metrics, it's dark. Sleeping till tomorrow at 1 am",
+          "Not sending metrics, it's dark. Sleeping till tomorrow at 1 am"
         );
         const sleepTime = timeLeftInDay() + oneHour;
         await sleep(sleepTime);
@@ -152,9 +158,6 @@ const Client = new SunPower({
   username,
   password,
   siteKey,
-  token:
-    "eyJraWQiOiJobUptSTdpa3p6R2NkUHpidDhybGJVWkJGS3hiRk1YUDBmZ3REZm51MlZFIiwiYWxnIjoiUlMyNTYifQ.eyJ2ZXIiOjEsImp0aSI6IkFULlZUMmR5Ty1CTTUwRUUzc3JIYzZOS1owUVhBY2hwR0JCT2pMY0NyOUUwQ28iLCJpc3MiOiJodHRwczovL3N1bnBvd2VyLm9rdGEuY29tL29hdXRoMi9hdXMxaW0yNmJxYW5kekNOTDBoOCIsImF1ZCI6ImVkcGFwaSIsImlhdCI6MTczNTY2Njg2MCwiZXhwIjoxNzM1NzUzMjYwLCJjaWQiOiIwb2ExaW0yNWYzZEpTb0FWZDBoOCIsInVpZCI6IjAwdTFsaDJkemNnbm5vek5tMGg4Iiwic2NwIjpbIm9wZW5pZCJdLCJhdXRoX3RpbWUiOjE3MzU2NjY4NjAsInN1YiI6ImpvZWwuaGFja2VAZ21haWwuY29tIiwiaXNBZG1pbiI6ZmFsc2UsInBhcnR5SWQiOiJVXzIwMjUxNCIsInVzZXJHcm91cCI6Im15U3VuUG93ZXIifQ.WfmBoJmFp_b4fzkq-ErQ8JwgGdapddYMo-JsA7qW64JBhZjLasymbQosSeXS-qrLkLU_PrMZhm9dkkaCjPRtRfq7fr_XICEI8cgjQo0lqLnQHrto9sBvV6FG4zJ5tVd-4YLxVxCOVpJ7xMvsEkloIT-W2485XRmfaegzhtsPCXgf0ZUAFyhJT3uWVlRJlinBUyGiJuj6H3Pplo3LFwT1-xIn9dUPJxQS8171BlbwOwayKfKv69J3PIIv_I71GvwfvHiV0kcLe82QkrFB_w43P18E0r-GZXHBi8loB2q39CAGgXqDdQu2z4afuY5q6rRQyGUm0fVenbKbDcSLYJP0Rg",
-  tokenExpire: 1735753260488,
 });
 const Dog = new BaseDatadog({ apiKey });
 const sun = new Sun();
