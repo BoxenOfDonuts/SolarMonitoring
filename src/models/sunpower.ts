@@ -1,9 +1,9 @@
 // sunpower wrapper
 import { post } from "../conf/fetch.ts";
-import { PanelQueryResponse, DataSeriesResponse } from "./psv-types.d.ts";
+import { DataSeriesResponse, PanelQueryResponse } from "./psv-types.d.ts";
 import { getPartialPanelData } from "../queries/panelQueries.ts";
 import { getFullDataSeries } from "../queries/dataSeriesQueries.ts";
-import { format } from "#deps";
+import { format } from "@std/datetime";
 import { log } from "#log";
 
 type Config = {
@@ -67,9 +67,11 @@ export default class SunPower {
     // expires in 24 hours in seconds
     this.tokenExpire = Date.now() + expires_in * 1000; // Convert expires_in to milliseconds
     log.debug(
-      `Logged in! Token expires at ${new Date(
-        this.tokenExpire
-      ).toLocaleString()}`
+      `Logged in! Token expires at ${
+        new Date(
+          this.tokenExpire,
+        ).toLocaleString()
+      }`,
     );
   }
 
@@ -114,7 +116,7 @@ export default class SunPower {
 
   async fetchData(
     body: GraphQLRequestBody,
-    retries: number = 1
+    retries: number = 1,
   ): Promise<GraphQLResponse> {
     log.debug("Fetching data", { remainingRetries: retries });
 

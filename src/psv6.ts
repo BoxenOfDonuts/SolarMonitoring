@@ -1,4 +1,4 @@
-import { parse } from "#deps";
+import { parse } from "@std/datetime";
 import { post } from "./conf/fetch.ts";
 import { apiKey, defaultSleep, oneHour, twoMinutes } from "#constants";
 import { log } from "#log";
@@ -141,7 +141,7 @@ class Meter extends BaseDatadog {
 
 async function getDeviceList(): Promise<APIResponse> {
   const response = await fetch(
-    "http://192.168.0.68/cgi-bin/dl_cgi?Command=DeviceList"
+    "http://192.168.0.68/cgi-bin/dl_cgi?Command=DeviceList",
   );
   const data = await response.json().catch(async (error) => {
     log.error("Error parsing response", error);
@@ -168,7 +168,7 @@ function formatDevices(devices: PSVDevices[]) {
       }
       return accum;
     },
-    {}
+    {},
   );
   return formatted;
 }
@@ -206,12 +206,12 @@ if (import.meta.main) {
     if (now > sun.sunrise && now < sun.sunset) {
       main();
       log.debug(
-        `sent metrics, sleeping for ${defaultSleep / 1000 / 60} minutes`
+        `sent metrics, sleeping for ${defaultSleep / 1000 / 60} minutes`,
       );
       await sleep(defaultSleep);
     } else if (now > sun.sunset) {
       log.debug(
-        `not sending metrics, it's dark. Sleeping till tomorrow at 1 am`
+        `not sending metrics, it's dark. Sleeping till tomorrow at 1 am`,
       );
       const sleepTime = timeLeftInDay() + oneHour;
       await sleep(sleepTime);

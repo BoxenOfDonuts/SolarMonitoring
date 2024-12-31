@@ -2,7 +2,7 @@ import { PanelQueryResponse } from "./psv-types.d.ts";
 import { post } from "../conf/fetch.ts";
 import { log } from "#log";
 import { apiKey } from "#constants";
-import { parse } from "#deps";
+import { parse } from "@std/datetime";
 
 export default class Panel {
   serialNumber: string;

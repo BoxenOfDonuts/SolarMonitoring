@@ -1,17 +1,23 @@
-import { log } from "#deps";
-import { DENO_ENV } from "#constants";
+import * as log from "@std/log";
+import { format } from "@std/datetime";
+import { DENO_ENV, SERVER_INFO_VENDOR } from "#constants";
 
-await log.setup({
-  //define handlers
+const logLevel = DENO_ENV === "DEV" ? "DEBUG" : "INFO";
+const loggerType = SERVER_INFO_VENDOR === "docker" ? "docker" : "default";
+
+log.setup({
   handlers: {
-    console: new log.handlers.ConsoleHandler("DEBUG", {
-      formatter: "{levelName} {datetime} {msg}",
+    console: new log.ConsoleHandler("DEBUG", {
+      formatter: (record) =>
+        `${record.levelName} ${
+          format(record.datetime, "yyyy-MM-dd HH:mm:ss")
+        } ${record.msg}`,
     }),
   },
   //assign handlers to loggers
   loggers: {
     default: {
-      level: DENO_ENV === "DEV" ? "DEBUG" : "INFO",
+      level: logLevel,
       handlers: ["console"],
     },
   },

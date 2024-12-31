@@ -3,15 +3,15 @@ import Sun from "./models/sun.ts";
 import Panel from "./models/panels.ts";
 import BaseDatadog from "./models/datadog.ts";
 import {
+  apiKey,
   longSleep,
   oneHour,
   password,
-  username,
   siteKey,
-  apiKey,
+  username,
 } from "#constants";
 import { log } from "#log";
-import { parse } from "#deps";
+import { parse } from "@std/datetime";
 
 function timeLeftInDay(): number {
   const now = Date.now();
@@ -28,7 +28,7 @@ function formatDate(time: string): number {
 function formatSeriesForDD(
   series: [string, string, string][],
   metric: string,
-  tags: string[]
+  tags: string[],
 ): {
   metric: string;
   type: number;
@@ -39,16 +39,27 @@ function formatSeriesForDD(
     log.error("No series data or invalid format");
     return [];
   }
-  return series.reduce((acc, series) => {
-    const [timestamp, value, _] = series;
-    acc.push({
-      metric,
-      type: 0,
-      points: [{ value: parseFloat(value), timestamp: formatDate(timestamp) }],
-      tags,
-    });
-    return acc;
-  }, [] as { metric: string; type: number; points: { value: number; timestamp: number }[]; tags: string[] }[]);
+  return series.reduce(
+    (acc, series) => {
+      const [timestamp, value, _] = series;
+      acc.push({
+        metric,
+        type: 0,
+        points: [{
+          value: parseFloat(value),
+          timestamp: formatDate(timestamp),
+        }],
+        tags,
+      });
+      return acc;
+    },
+    [] as {
+      metric: string;
+      type: number;
+      points: { value: number; timestamp: number }[];
+      tags: string[];
+    }[],
+  );
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -62,7 +73,7 @@ async function sendMetrics(): Promise<void> {
 
     if (panelData?.data?.panels?.panels.length > 0) {
       const panels = panelData.data.panels.panels.map(
-        (panel) => new Panel(panel)
+        (panel) => new Panel(panel),
       );
       panels.forEach((panel) => {
         panel.sendCheck();
@@ -72,8 +83,8 @@ async function sendMetrics(): Promise<void> {
       log.error("No panel data found");
     }
 
-    const productionData =
-      siteData?.data?.power?.powerDataSeries?.production || [];
+    const productionData = siteData?.data?.power?.powerDataSeries?.production ||
+      [];
     const energyData =
       siteData?.data?.energyRange?.energyDataSeries?.production || [];
 
@@ -84,7 +95,7 @@ async function sendMetrics(): Promise<void> {
     const productionSeries = formatSeriesForDD(
       productionData,
       "solar.current.power",
-      ["site:power"]
+      ["site:power"],
     );
     const energySeries = formatSeriesForDD(energyData, "solar.current.energy", [
       "site:energy",
@@ -106,12 +117,12 @@ export async function main(): Promise<void> {
       if (now > sun.sunrise && now < sun.sunset) {
         await sendMetrics();
         log.debug(
-          `Sent metrics, sleeping for ${longSleep / 1000 / 60} minutes`
+          `Sent metrics, sleeping for ${longSleep / 1000 / 60} minutes`,
         );
         await sleep(longSleep);
       } else if (now > sun.sunset) {
         log.debug(
-          "Not sending metrics, it's dark. Sleeping till tomorrow at 1 am"
+          "Not sending metrics, it's dark. Sleeping till tomorrow at 1 am",
         );
         const sleepTime = timeLeftInDay() + oneHour;
         await sleep(sleepTime);

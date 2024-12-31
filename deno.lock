@@ -1,28 +1,43 @@
 {
-  "version": "2",
-  "remote": {
-    "https://deno.land/std@0.196.0/assert/assert.ts": "9a97dad6d98c238938e7540736b826440ad8c1c1e54430ca4c4e623e585607ee",
-    "https://deno.land/std@0.196.0/assert/assertion_error.ts": "4d0bde9b374dfbcbe8ac23f54f567b77024fb67dbb1906a852d67fe050d42f56",
-    "https://deno.land/std@0.196.0/bytes/copy.ts": "939d89e302a9761dcf1d9c937c7711174ed74c59eef40a1e4569a05c9de88219",
-    "https://deno.land/std@0.196.0/collections/filter_values.ts": "16e1fc456a7969e770ec5b89edf5ac97b295ca534b47c1a83f061b409aad7814",
-    "https://deno.land/std@0.196.0/collections/without_all.ts": "1e3cccb1ed0659455b473c0766d9414b7710d8cef48862c899f445178f66b779",
-    "https://deno.land/std@0.196.0/datetime/_common.ts": "f5c1cb784c616151a3d8198a4ab29f65b7fe5c20a105d8979bde9558c7b52910",
-    "https://deno.land/std@0.196.0/datetime/constants.ts": "b63a6b702e06fa028fb2ffa25e0cf775e3b21cf7f38e53a6f219e9641894dfbb",
-    "https://deno.land/std@0.196.0/datetime/day_of_year.ts": "4d38e727e643805d6a57f398f3d55458e3168bdde9131d0b2d86e15ba76bb289",
-    "https://deno.land/std@0.196.0/datetime/difference.ts": "fab879a5a7caf44604c240898ed2c7cdd16f037a3bd6e0cb185994fafbd71e4b",
-    "https://deno.land/std@0.196.0/datetime/format.ts": "2d7a430ca9571e054ac181dcb950faf9ac23445e081dcb230ca37134e6eaad0c",
-    "https://deno.land/std@0.196.0/datetime/is_leap.ts": "706c3579a34d38111eea92c1b8683e859e5c5db9ec05f08a9b611ec888fbd787",
-    "https://deno.land/std@0.196.0/datetime/mod.ts": "8fccadb22ad67775374a375e0077ef008bed80a20ccf8a3285115a071d08f75e",
-    "https://deno.land/std@0.196.0/datetime/parse.ts": "b59f583e7fe5ef2105c6dd4a74825670c9f4e1e35462c047c6f0a207b5653aac",
-    "https://deno.land/std@0.196.0/datetime/to_imf.ts": "8f9c0af8b167031ffe2e03da01a12a3b0672cc7562f89c61942a0ab0129771b2",
-    "https://deno.land/std@0.196.0/datetime/week_of_year.ts": "4f327c5656959759fac0a0bb642cfd6a0a64440e5a876ab218edbee006d98d20",
-    "https://deno.land/std@0.196.0/dotenv/mod.ts": "39e5d19e077e55d7e01ea600eb1c6d1e18a8dfdfc65d68826257a576788da3a4",
-    "https://deno.land/std@0.196.0/fmt/colors.ts": "a7eecffdf3d1d54db890723b303847b6e0a1ab4b528ba6958b8f2e754cf1b3bc",
-    "https://deno.land/std@0.196.0/fs/exists.ts": "29c26bca8584a22876be7cb8844f1b6c8fc35e9af514576b78f5c6884d7ed02d",
-    "https://deno.land/std@0.196.0/io/buf_writer.ts": "48c33c8f00b61dcbc7958706741cec8e59810bd307bc6a326cbd474fe8346dfd",
-    "https://deno.land/std@0.196.0/log/handlers.ts": "38871ecbfa67b0d39dc3384210439ac9a13cba6118b912236f9011b5989b9a4d",
-    "https://deno.land/std@0.196.0/log/levels.ts": "6309147664e9e008cd6671610f2505c4c95f181f6bae4816a84b33e0aec66859",
-    "https://deno.land/std@0.196.0/log/logger.ts": "257ceb47e3f5f872068073de9809b015a7400e8d86dd40563c1d80169e578f71",
-    "https://deno.land/std@0.196.0/log/mod.ts": "cc1989f3290b792271f41f4cba392a367520564efbc892be1e00dee423ccd3d9"
+  "version": "4",
+  "specifiers": {
+    "jsr:@std/datetime@~0.225.2": "0.225.2",
+    "jsr:@std/dotenv@~0.225.3": "0.225.3",
+    "jsr:@std/fmt@^1.0.3": "1.0.3",
+    "jsr:@std/fs@^1.0.7": "1.0.8",
+    "jsr:@std/io@0.225": "0.225.0",
+    "jsr:@std/log@~0.224.12": "0.224.12"
+  },
+  "jsr": {
+    "@std/datetime@0.225.2": {
+      "integrity": "45f0100554a912cd65f48089ef0a33aa1eb6ea21f08090840b539ab582827eaa"
+    },
+    "@std/dotenv@0.225.3": {
+      "integrity": "a95e5b812c27b0854c52acbae215856d9cce9d4bbf774d938c51d212711e8d4a"
+    },
+    "@std/fmt@1.0.3": {
+      "integrity": "97765c16aa32245ff4e2204ecf7d8562496a3cb8592340a80e7e554e0bb9149f"
+    },
+    "@std/fs@1.0.8": {
+      "integrity": "161c721b6f9400b8100a851b6f4061431c538b204bb76c501d02c508995cffe0"
+    },
+    "@std/io@0.225.0": {
+      "integrity": "c1db7c5e5a231629b32d64b9a53139445b2ca640d828c26bf23e1c55f8c079b3"
+    },
+    "@std/log@0.224.12": {
+      "integrity": "d0f002f1340a11f28d482a7a9e1c904c26b8ff2c7dd4fe32175b3ece3e0b18c5",
+      "dependencies": [
+        "jsr:@std/fmt",
+        "jsr:@std/fs",
+        "jsr:@std/io"
+      ]
+    }
+  },
+  "workspace": {
+    "dependencies": [
+      "jsr:@std/datetime@~0.225.2",
+      "jsr:@std/dotenv@~0.225.3",
+      "jsr:@std/log@~0.224.12"
+    ]
   }
 }
