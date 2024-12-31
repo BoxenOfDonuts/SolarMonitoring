@@ -4,7 +4,10 @@ FROM denoland/deno:alpine
 
 # Timezone Stuff
 RUN apk add --no-cache tzdata
-ENV TZ=America/Chicago
+ENV TZ=America/Chicago \
+    SERVER_INFO_VENDOR=docker
+    DENO_ENV=production
+
 
 WORKDIR /app
 

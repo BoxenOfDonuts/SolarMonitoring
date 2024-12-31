@@ -67,7 +67,8 @@ export default class Sun {
       ["appId", `${weatherApiKey}`],
     ]);
 
-    const URL = `https://api.openweathermap.org/data/2.5/weather?${params.toString()}`;
+    const URL =
+      `https://api.openweathermap.org/data/2.5/weather?${params.toString()}`;
 
     try {
       const result = (await get(URL)) as WeatherData;
