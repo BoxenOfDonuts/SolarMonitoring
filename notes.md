@@ -19,7 +19,7 @@ create config / contants file. Export config, then can use it like
 ```javascript
 // config.ts
 
-import { load } from '#deps'
+import { load } from '@std/datetime'
 
 const env = await load();
 

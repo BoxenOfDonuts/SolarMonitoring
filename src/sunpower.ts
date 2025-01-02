@@ -1,17 +1,20 @@
 import SunPower from "./models/sunpower.ts";
 import Sun from "./models/sun.ts";
 import Panel from "./models/panels.ts";
+import { CheckBody, MetricBody } from "./models/datadog.ts";
 import BaseDatadog from "./models/datadog.ts";
 import {
+  apiKey,
   longSleep,
   oneHour,
   password,
-  username,
   siteKey,
-  apiKey,
+  username,
 } from "#constants";
 import { log } from "#log";
-import { parse } from "#deps";
+import { parse } from "@std/datetime";
+
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function timeLeftInDay(): number {
   const now = Date.now();
@@ -21,11 +24,10 @@ function timeLeftInDay(): number {
 
 function formatDate(time: string): number {
   const format = "yyyy-MM-ddTHH:mm:ss";
-  const date = parse(time, format).getTime() / 1000;
-  return date;
+  return parse(time, format).getTime() / 1000;
 }
 
-function formatSeriesForDD(
+function formatSeriesForDatadog(
   series: [string, string, string][],
   metric: string,
   tags: string[]
@@ -39,58 +41,82 @@ function formatSeriesForDD(
     log.error("No series data or invalid format");
     return [];
   }
-  return series.reduce((acc, series) => {
-    const [timestamp, value, _] = series;
-    acc.push({
-      metric,
-      type: 0,
-      points: [{ value: parseFloat(value), timestamp: formatDate(timestamp) }],
-      tags,
-    });
-    return acc;
-  }, [] as { metric: string; type: number; points: { value: number; timestamp: number }[]; tags: string[] }[]);
+
+  return series.reduce(
+    (acc, [timestamp, value]) => {
+      acc.push({
+        metric,
+        type: 0,
+        points: [
+          {
+            value: parseFloat(value),
+            timestamp: formatDate(timestamp),
+          },
+        ],
+        tags,
+      });
+      return acc;
+    },
+    [] as {
+      metric: string;
+      type: number;
+      points: { value: number; timestamp: number }[];
+      tags: string[];
+    }[]
+  );
 }
 
-const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
+function formatPanelDataForDatadog(panels: Panel[]): {
+  series: MetricBody[];
+  checks: CheckBody[];
+} {
+  return panels.reduce(
+    (dataObj, panel) => {
+      dataObj.checks.push(panel.getCheckBody());
+      dataObj.series.push(...panel.getMetricsBody());
+      return dataObj;
+    },
+    {
+      checks: [] as CheckBody[],
+      series: [] as MetricBody[],
+    }
+  );
+}
 
 async function sendMetrics(): Promise<void> {
   try {
-    const [panelData, siteData] = await Promise.all([
-      Client.getPanelData(),
-      Client.getSeriesData(),
-    ]);
+    const { data } = await Client.getData();
 
-    if (panelData?.data?.panels?.panels.length > 0) {
-      const panels = panelData.data.panels.panels.map(
-        (panel) => new Panel(panel)
-      );
-      panels.forEach((panel) => {
-        panel.sendCheck();
-        panel.sendMetrics();
+    if (data?.panels?.panels.length > 0) {
+      const panels = data.panels.panels.map((panel) => {
+        return new Panel(panel);
       });
+      const { series, checks } = formatPanelDataForDatadog(panels);
+      Dog.sendMetrics(series);
+      Dog.sendChecks(checks);
     } else {
       log.error("No panel data found");
     }
 
-    const productionData =
-      siteData?.data?.power?.powerDataSeries?.production || [];
-    const energyData =
-      siteData?.data?.energyRange?.energyDataSeries?.production || [];
+    const productionData = data?.power?.powerDataSeries?.production || [];
+    const energyData = data?.energyRange?.energyDataSeries?.production || [];
 
     if (productionData.length === 0 || energyData.length === 0) {
       log.error("Missing site power or site energy data");
     }
 
-    const productionSeries = formatSeriesForDD(
+    const productionSeries = formatSeriesForDatadog(
       productionData,
       "solar.current.power",
       ["site:power"]
     );
-    const energySeries = formatSeriesForDD(energyData, "solar.current.energy", [
-      "site:energy",
-    ]);
+    const energySeries = formatSeriesForDatadog(
+      energyData,
+      "solar.current.energy",
+      ["site:energy"]
+    );
 
-    Dog.sendMetrics(productionSeries.concat(energySeries));
+    Dog.sendMetrics([...productionSeries, ...energySeries]);
   } catch (error) {
     log.error("Error in sendMetrics:", error);
   }
@@ -128,7 +154,11 @@ export async function main(): Promise<void> {
   }
 }
 
-const Client = new SunPower({ username, password, siteKey });
+const Client = new SunPower({
+  username,
+  password,
+  siteKey,
+});
 const Dog = new BaseDatadog({ apiKey });
 const sun = new Sun();
 

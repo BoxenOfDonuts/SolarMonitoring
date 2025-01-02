@@ -1,8 +1,5 @@
 import { PanelQueryResponse } from "./psv-types.d.ts";
-import { post } from "../conf/fetch.ts";
-import { log } from "#log";
-import { apiKey } from "#constants";
-import { parse } from "#deps";
+import { parse } from "@std/datetime";
 
 export default class Panel {
   serialNumber: string;
@@ -46,63 +43,28 @@ export default class Panel {
     return date;
   }
 
-  async sendCheck() {
-    const headers = new Headers({
-      "DD-API-KEY": apiKey,
-      "Content-Type": "application/json",
-    });
+  getMetricsBody() {
+    return [
+      {
+        metric: "solar.current.power",
+        type: 0,
+        points: [{ value: this.currentPower, timestamp: this.time }],
+        tags: this.tags,
+      },
+      {
+        metric: "solar.current.energy",
+        type: 0,
+        points: [{ value: this.currentEnergy, timestamp: this.time }],
+        tags: this.tags,
+      },
+    ];
+  }
 
-    const body = {
+  getCheckBody() {
+    return {
       check: "solar.status",
       status: this.status,
       tags: this.tags,
     };
-
-    const url = "https://api.datadoghq.com/api/v1/check_run";
-
-    try {
-      const response = await post(url, body, headers);
-      log.debug(response);
-    } catch (error) {
-      log.error("error sending check to datadog", error);
-    }
-  }
-
-  async sendMetrics() {
-    const url = "https://api.datadoghq.com/api/v2/series/";
-    const headers = new Headers({
-      "DD-API-KEY": apiKey,
-      "Content-Type": "application/json",
-    });
-
-    const body = {
-      series: [
-        {
-          metric: "solar.current.power",
-          type: 0,
-          points: [{ value: this.currentPower, timestamp: this.time }],
-          tags: this.tags,
-        },
-        {
-          metric: "solar.current.energy",
-          type: 0,
-          points: [{ value: this.currentEnergy, timestamp: this.time }],
-          tags: this.tags,
-        },
-        // {
-        //   metric: "solar.lifetime.power",
-        //   type: 0,
-        //   points: [{ value: this.lifetimePower, timestamp: this.time }],
-        //   tags: this.tags,
-        // },
-      ],
-    };
-
-    try {
-      const response = await post(url, body, headers);
-      log.debug(response);
-    } catch (error) {
-      log.error("error sending metric to datadog", error);
-    }
   }
 }

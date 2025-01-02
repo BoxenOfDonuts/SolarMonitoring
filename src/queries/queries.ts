@@ -1,4 +1,5 @@
-export const getFullPanelData = `query Panels($date: String!, $siteKey: String!) {
+export const getFullPanelData =
+  `query Panels($date: String!, $siteKey: String!) {
     panels(date: $date, siteKey: $siteKey) {
       hasPanelLayout
       siteDailyEnergyProduction {
@@ -110,6 +111,100 @@ export const getPartialPanelData = (date: string, siteKey: string) => {
     }
     `,
     variables: {
+      date,
+      siteKey,
+    },
+  };
+};
+
+export const getFullDataSeries = (
+  start: string,
+  end: string,
+  interval: string,
+  siteKey: string,
+) => {
+  return {
+    query:
+      `query FetchPowerData($interval: String!, $end: String!, $start: String!, $siteKey: String!) {
+    power(interval: $interval, end: $end, start: $start, siteKey: $siteKey) {
+      powerDataSeries {
+        production
+      }
+    }
+    energyRange(interval: $interval, end: $end, start: $start, siteKey: $siteKey) {
+      energyDataSeries {
+        production
+      }
+    }
+  }`,
+    variables: {
+      start,
+      end,
+      interval,
+      siteKey,
+    },
+  };
+};
+
+export const getFullData = (
+  start: string,
+  end: string,
+  interval: string,
+  date: string,
+  siteKey: string,
+) => {
+  return {
+    query: `
+    query FetchData(
+    $interval: String!
+    $end: String!
+    $start: String!
+    $date: String!
+    $siteKey: String!
+) {
+    power(interval: $interval, end: $end, start: $start, siteKey: $siteKey) {
+        powerDataSeries {
+            production
+        }
+    }
+    energyRange(interval: $interval, end: $end, start: $start, siteKey: $siteKey) {
+        energyDataSeries {
+            production
+        }
+    }
+    panels(date: $date, siteKey: $siteKey) {
+        siteHourlyPowerProduction {
+            timestamp
+            value
+            __typename
+        }
+        panels {
+            serialNumber
+            lastCommunicationTimestamp
+            alerts {
+                alertStatus
+                deviceSerialNumber
+                deviceType
+                deviceKey
+                alertId
+                alertType
+                eventTimestamp
+                __typename
+            }
+            hourlyData {
+                timestamp
+                power
+                energy
+                __typename
+            }
+            __typename
+        }
+    }
+}`,
+    variables: {
+      start,
+      end,
+      interval,
       date,
       siteKey,
     },

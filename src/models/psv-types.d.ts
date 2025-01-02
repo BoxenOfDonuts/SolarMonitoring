@@ -183,9 +183,9 @@ interface DataSeriesResponse {
 
 export {
   APIResponse,
+  DataSeriesResponse,
   PanelQueryResponse,
   PSVDevices,
   PSVInverter,
   PSVPowerMeter,
-  DataSeriesResponse,
 };

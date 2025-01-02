@@ -1,9 +1,12 @@
 // sunpower wrapper
 import { post } from "../conf/fetch.ts";
-import { PanelQueryResponse, DataSeriesResponse } from "./psv-types.d.ts";
-import { getPartialPanelData } from "../queries/panelQueries.ts";
-import { getFullDataSeries } from "../queries/dataSeriesQueries.ts";
-import { format } from "#deps";
+import { DataSeriesResponse, PanelQueryResponse } from "./psv-types.d.ts";
+import {
+  getFullData,
+  getFullDataSeries,
+  getPartialPanelData,
+} from "../queries/queries.ts";
+import { format } from "@std/datetime";
 import { log } from "#log";
 
 type Config = {
@@ -19,7 +22,9 @@ type GraphQLRequestBody = {
   variables?: { [key: string]: any };
 };
 
-type GraphQLResponse = PanelQueryResponse | DataSeriesResponse;
+type SingleQuery = PanelQueryResponse & DataSeriesResponse;
+
+type GraphQLResponse = PanelQueryResponse | DataSeriesResponse | SingleQuery;
 
 export default class SunPower {
   private username: string;
@@ -169,6 +174,19 @@ export default class SunPower {
 
     const data = (await this.fetchData(body)) as DataSeriesResponse;
     log.debug("Got series data", { data });
+
+    return data;
+  }
+
+  async getData(): Promise<SingleQuery> {
+    log.debug("Getting panel and series data");
+    const { start, end } = this.getDateRange();
+    const interval = "five_minute";
+    const date = format(new Date(), "yyyy-MM-dd");
+
+    const body = getFullData(start, end, interval, date, this.siteKey);
+
+    const data = (await this.fetchData(body)) as SingleQuery;
 
     return data;
   }
