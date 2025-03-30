@@ -5,7 +5,7 @@ import { CheckBody, MetricBody } from "./models/datadog.ts";
 import BaseDatadog from "./models/datadog.ts";
 import {
   apiKey,
-  longSleep,
+  queryInterval,
   oneHour,
   password,
   siteKey,
@@ -132,9 +132,9 @@ export async function main(): Promise<void> {
       if (now > sun.sunrise && now < sun.sunset) {
         await sendMetrics();
         log.debug(
-          `Sent metrics, sleeping for ${longSleep / 1000 / 60} minutes`
+          `Sent metrics, sleeping for ${queryInterval / 1000 / 60} minutes`
         );
-        await sleep(longSleep);
+        await sleep(queryInterval);
       } else if (now > sun.sunset) {
         log.debug(
           "Not sending metrics, it's dark. Sleeping till tomorrow at 1 am"

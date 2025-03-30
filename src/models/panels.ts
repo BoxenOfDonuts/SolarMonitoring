@@ -1,17 +1,9 @@
-import { PanelQueryResponse } from "./psv-types.d.ts";
+import { PanelQueryResponse, PanelQueryResponseAlert } from "./psv-types.d.ts";
 import { parse } from "@std/datetime";
 
 export default class Panel {
   serialNumber: string;
-  alerts: {
-    alertStatus: any;
-    deviceSerialNumber: string;
-    deviceType: any;
-    deviceKey: any;
-    alertId: any;
-    alertType: any;
-    eventTimestamp: string;
-  };
+  alerts: PanelQueryResponseAlert[] | null;
   hourlyData: {
     timestamp: string;
     power: number;
@@ -28,12 +20,18 @@ export default class Panel {
     this.serialNumber = panel.serialNumber;
     this.alerts = panel.alerts;
     this.hourlyData = panel.hourlyData;
-    this.status = panel.alerts ? 2 : 0;
+    this.status = this.isAlerting(panel.alerts);
     this.tags = [`inverter:${panel.serialNumber}`];
 
     this.currentPower = panel.hourlyData?.at(-1)?.power ?? 0;
     this.currentEnergy = panel.hourlyData?.at(-1)?.energy ?? 0;
     this.time = this.formatDate(panel.hourlyData?.at(-1)?.timestamp ?? "");
+  }
+
+  private isAlerting(alerts: PanelQueryResponseAlert[] | null) {
+    if (!alerts) return 0;
+    if (alerts[0].alertType === "mySunPowerPanelTempNoCommunication") return 0;
+    return alerts[0].alertStatus === "Open" ? 2 : 0;
   }
 
   // needed, but only for the one we are sending to datadog
