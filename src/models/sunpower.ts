@@ -185,9 +185,9 @@ export default class SunPower {
     const date = format(new Date(), "yyyy-MM-dd");
 
     const body = getFullData(start, end, interval, date, this.siteKey);
-
+    log.debug("Querying with variables", { variables: body.variables });
     const data = (await this.fetchData(body)) as SingleQuery;
-
+    log.debug("Got panel and series data", { data });
     return data;
   }
 }

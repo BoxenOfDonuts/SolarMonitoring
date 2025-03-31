@@ -6,7 +6,7 @@ const appKey = getEnv("DATADOG_APP_KEY");
 const weatherApiKey = getEnv("WEATHER_API_KEY");
 const weatherLocation = getEnv("WEATHER_LOCATION");
 const defaultSleep = 2 * 60 * 1000; // 2 minutes
-const longSleep = 15 * 60 * 1000; // 1 hour
+const queryInterval = getQueryInterval();
 const oneHour = 60 * 60 * 1000; // 1 hour
 const thirtyMinutes = 30 * 60 * 1000; // 30 minutes
 const twoMinutes = 2 * 60 * 1000; // 2 minutes
@@ -22,14 +22,25 @@ function getEnv(key: string): string {
   const result = env[key] || Deno.env.get(key);
   if (!result) {
     throw new Error(
-      `Missing env var ${key}, make sure you have a .env file or you pass it in via the command line`,
+      `Missing env var ${key}, make sure you have a .env file or you pass it in via the command line`
     );
   }
   return result;
 }
 
-function getOptionalEnv(key: string, defaultValue: string): string | undefined {
-  return env[key] || Deno.env.get(key) || defaultValue;
+function getOptionalEnv<T extends string | number>(
+  key: string,
+  defaultValue: T
+): T {
+  return (env[key] || Deno.env.get(key) || defaultValue) as T;
+}
+
+function getQueryInterval() {
+  let queryInterval = getOptionalEnv("QUERY_INTERVAL", 15);
+  if (isNaN(Number(queryInterval))) {
+    queryInterval = 15;
+  }
+  return queryInterval * 60 * 1000;
 }
 
 export {
@@ -37,7 +48,7 @@ export {
   appKey,
   defaultSleep,
   DENO_ENV,
-  longSleep,
+  queryInterval,
   oneHour,
   password,
   SERVER_INFO_VENDOR,

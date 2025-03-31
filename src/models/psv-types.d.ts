@@ -96,6 +96,17 @@ interface APIResponse {
   devices: PSVDevices[];
 }
 
+type PanelQueryResponseAlert = {
+  alertStatus: string;
+  deviceSerialNumber: string;
+  deviceType: string;
+  deviceKey: string;
+  alertId: string;
+  alertType: string;
+  eventTimestamp: string;
+  __typename: string;
+};
+
 interface PanelQueryResponse {
   errors: {
     message: string;
@@ -127,16 +138,7 @@ interface PanelQueryResponse {
           __typename: string;
         };
         energyColorCode: number;
-        alerts: {
-          alertStatus: any;
-          deviceSerialNumber: string;
-          deviceType: any;
-          deviceKey: any;
-          alertId: any;
-          alertType: any;
-          eventTimestamp: string;
-          __typename: any;
-        };
+        alerts: PanelQueryResponseAlert[] | null;
         hourlyData: {
           timestamp: string;
           power: number;
@@ -185,6 +187,7 @@ export {
   APIResponse,
   DataSeriesResponse,
   PanelQueryResponse,
+  PanelQueryResponseAlert,
   PSVDevices,
   PSVInverter,
   PSVPowerMeter,
