@@ -33,9 +33,9 @@ export default class SunPower {
   private token: string | null = null;
   private tokenExpire: number | null = null;
   private graphqlURL: string =
-    "https://edp-api-graphql.edp.sunpower.com/graphql";
+    "https://edp-api-graphql.mysunstrong.com/graphql";
   private loginURL: string =
-    "https://edp-api.edp.sunpower.com/v1/auth/okta/signin";
+    "https://edp-api.edp.sunstrongmonitoring.com/v1/auth/okta/signin";
   private isLoggingIn: boolean = false; // Mutex flag
   private loginPromise: Promise<void> | null = null; // Promise to track login
 

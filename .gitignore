@@ -163,3 +163,5 @@ cython_debug/
 docker-compose.*yml
 
 **launch.json
+
+node_modules/
