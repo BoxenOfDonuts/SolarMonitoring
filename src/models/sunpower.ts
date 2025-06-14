@@ -168,7 +168,7 @@ export default class SunPower {
     log.debug("Getting series data");
 
     const { start, end } = this.getDateRange();
-    const interval = "five_minute";
+    const interval = "hour";
 
     const body = getFullDataSeries(start, end, interval, this.siteKey);
 
@@ -181,7 +181,7 @@ export default class SunPower {
   async getData(): Promise<SingleQuery> {
     log.debug("Getting panel and series data");
     const { start, end } = this.getDateRange();
-    const interval = "five_minute";
+    const interval = "hour";
     const date = format(new Date(), "yyyy-MM-dd");
 
     const body = getFullData(start, end, interval, date, this.siteKey);
