@@ -12,9 +12,6 @@ export default class Panel {
   }[];
   status: number;
   tags: string[];
-  currentPower: number;
-  currentEnergy: number;
-  time: number;
 
   constructor(panel: PanelQueryResponse["data"]["panels"]["panels"][number]) {
     this.serialNumber = panel.serialNumber;
@@ -22,10 +19,6 @@ export default class Panel {
     this.hourlyData = panel.hourlyData;
     this.status = this.isAlerting(panel.alerts);
     this.tags = [`inverter:${panel.serialNumber}`];
-
-    this.currentPower = panel.hourlyData?.at(-1)?.power ?? 0;
-    this.currentEnergy = panel.hourlyData?.at(-1)?.energy ?? 0;
-    this.time = this.formatDate(panel.hourlyData?.at(-1)?.timestamp ?? "");
   }
 
   private isAlerting(alerts: PanelQueryResponseAlert[] | null) {
@@ -42,17 +35,26 @@ export default class Panel {
   }
 
   getMetricsBody() {
+    const powerPoints = this.hourlyData.map((data) => ({
+      value: data.power,
+      timestamp: this.formatDate(data.timestamp),
+    }));
+    const energyPoints = this.hourlyData.map((data) => ({
+      value: data.energy,
+      timestamp: this.formatDate(data.timestamp),
+    }));
+
     return [
       {
         metric: "solar.current.power",
         type: 0,
-        points: [{ value: this.currentPower, timestamp: this.time }],
+        points: powerPoints,
         tags: this.tags,
       },
       {
         metric: "solar.current.energy",
         type: 0,
-        points: [{ value: this.currentEnergy, timestamp: this.time }],
+        points: energyPoints,
         tags: this.tags,
       },
     ];
